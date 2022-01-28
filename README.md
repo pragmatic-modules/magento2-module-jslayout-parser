@@ -36,29 +36,24 @@ namespace Pragmatic\Example\Block\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 use Pragmatic\JsLayoutParser\Api\ComponentInterface;
-use Pragmatic\JsLayoutParser\Api\ComponentInterfaceFactory as ComponentFactory;
+use Pragmatic\JsLayoutParser\Model\JsLayoutParser;
 
 class ExampleProcessor implements LayoutProcessorInterface
 {
-    /** @var ComponentFactory */
-    private $componentFactory;
+    /** @var JsLayoutParser */
+    private $jsLayoutParser;
 
-    public function __construct(
-        ComponentFactory $componentFactory
-    ) {
-        $this->componentFactory = $componentFactory;
+    public function __construct(JsLayoutParser $jsLayoutParser)
+    {
+        $this->jsLayoutParser = $jsLayoutParser;
     }
 
     public function process($jsLayout)
     {
         /** @var ComponentInterface $component */
-        $component = $this->componentFactory->create([
-            'data' => $jsLayout['components']['checkout'],
-            'componentName' => 'checkout'
-        ]);
+        $component = $this->jsLayoutParser->parse($jsLayout, 'checkout');
 
-        if ($component->hasNestedChild('steps.shipping-step.shippingAddress')) {
-            $shippingAddress = $component->getNestedChild('steps.shipping-step.shippingAddress');
+        if ($shippingAddress = $component->getNestedChild('steps.shipping-step.shippingAddress')) {
             $shippingAddress->setComponent('Vendor_Module/js/view/shipping');
             $shippingAddress->setIsVisible(false);
         }
@@ -77,12 +72,12 @@ Pragmatic\JsLayoutParser\Api\ComponentInterface::class
     getName() : string;
     getParent() : ?ComponentInterface;
     setParent(ComponentInterface $component) : ComponentInterface;
-    getChild(string $componentName): ComponentInterface;
+    getChild(string $componentName): ?ComponentInterface;
     addChild(string $componentName, ComponentInterface $component): ComponentInterface;
     removeChild(string $componentName): ComponentInterface;
     hasChild(string $componentName): bool;
     hasNestedChild(string $path, string $childSeparator = '.'): bool;
-    getNestedChild(string $path, string $childSeparator = '.') : ComponentInterface;
+    getNestedChild(string $path, string $childSeparator = '.') : ?ComponentInterface;
     moveNestedChild(string $sourcePath, string $destinationPath, string $childSeparator = '.') : ComponentInterface;
     hasChildren(): bool;
     getChildren(): array;

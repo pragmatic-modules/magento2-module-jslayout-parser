@@ -31,10 +31,9 @@ interface ComponentInterface
 
     /**
      * @param string $componentName
-     * @return ComponentInterface
-     * @throws LocalizedException
+     * @return ComponentInterface|null
      */
-    public function getChild(string $componentName): ComponentInterface;
+    public function getChild(string $componentName): ?ComponentInterface;
 
     /**
      * @param string $componentName
@@ -59,10 +58,9 @@ interface ComponentInterface
     /**
      * @param string $path
      * @param string $childSeparator
-     * @return ComponentInterface
-     * @throws LocalizedException
+     * @return ComponentInterface|null
      */
-    public function getNestedChild(string $path, string $childSeparator = '.') : ComponentInterface;
+    public function getNestedChild(string $path, string $childSeparator = '.') : ?ComponentInterface;
 
     /**
      * @param string $sourcePath

@@ -20,11 +20,15 @@ class Component implements ComponentInterface
     /** @var ComponentInterface|null */
     private $parent;
 
+    /** @var boolean */
+    private $isVirtual;
+
     public function __construct(
         ComponentFactory $componentFactory,
         string $componentName,
         array $data,
-        ?ComponentInterface $parent = null
+        ?ComponentInterface $parent = null,
+        bool $isVirtual = false
     ) {
         $this->componentFactory = $componentFactory;
         $this->data = $data;
@@ -66,15 +70,9 @@ class Component implements ComponentInterface
         return isset($this->data['children'][$componentName]);
     }
 
-    public function getChild(string $componentName): ComponentInterface
+    public function getChild(string $componentName): ?ComponentInterface
     {
-        if (!$this->hasChild($componentName)) {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('%1 component does not exist in %2', $componentName, $this->componentName)
-            );
-        }
-
-        return $this->data['children'][$componentName];
+        return $this->data['children'][$componentName] ?? null;
     }
 
     public function addChild(string $componentName, ComponentInterface $component): ComponentInterface
@@ -120,13 +118,16 @@ class Component implements ComponentInterface
         return true;
     }
 
-    public function getNestedChild(string $path, string $childSeparator = '.') : ComponentInterface
+    public function getNestedChild(string $path, string $childSeparator = '.') : ?ComponentInterface
     {
         $componentNames = explode($childSeparator, $path);
         $component = $this;
 
         foreach ($componentNames as $componentName) {
             $component = $component->getChild($componentName);
+            if($component === null) {
+                return null;
+            }
         }
 
         return $component;
@@ -139,6 +140,13 @@ class Component implements ComponentInterface
     ): ComponentInterface {
         $source = $this->getNestedChild($sourcePath);
         $destination = $this->getNestedChild($destinationPath);
+
+        if(!$source || !$destination) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Moving child failed. source or destination does not exist ')
+            );
+        }
+
         $source->getParent()->removeChild($source->getName());
         $destination->addChild($source->getName(), $source);
 
@@ -148,6 +156,12 @@ class Component implements ComponentInterface
     public function removeNestedChild(string $path, string $childSeparator = '.'): ComponentInterface
     {
         $component = $this->getNestedChild($path);
+        if(!$component) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Moving child failed. source or destination does not exist ')
+            );
+        }
+
         $component->getParent()->removeChild($component->getName());
 
         return $this;
@@ -240,12 +254,12 @@ class Component implements ComponentInterface
         return $this->setData('provider', $provider);
     }
 
-    public function getSortOrder() : ?int
+    public function getSortOrder() : ?string
     {
         return $this->getData('sortOrder');
     }
 
-    public function setSortOrder(int $sortOrder) : ComponentInterface
+    public function setSortOrder(string $sortOrder) : ComponentInterface
     {
         return $this->setData('sortOrder', $sortOrder);
     }
@@ -311,6 +325,10 @@ class Component implements ComponentInterface
         /** @var ComponentInterface $child */
         foreach($this->data['children'] ?? [] as $componentName => $child) {
             $children[$componentName] = $child->asArray();
+        }
+
+        if($this->isVirtual) {
+            return $children;
         }
 
         return array_merge($this->data, ['children' => $children]);
