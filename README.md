@@ -101,8 +101,8 @@ Pragmatic\JsLayoutParser\Api\ComponentInterface::class
     setLabel($label): ComponentInterface;
     getProvider(): ?string;
     setProvider(string $provider): ComponentInterface;
-    getSortOrder(): ?int;
-    setSortOrder(int $sortOrder): ComponentInterface;
+    getSortOrder(): ?string;
+    setSortOrder(string $sortOrder): ComponentInterface;
     getValidation(): array;
     setValidation(array $validation): ComponentInterface;
     getValue();
