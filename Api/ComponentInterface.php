@@ -10,18 +10,12 @@ interface ComponentInterface
     /**
      * @return string
      */
-    public function getName() : string;
+    public function getComponentName() : string;
 
     /**
      * @return ComponentInterface|null
      */
     public function getParent() : ?ComponentInterface;
-
-    /**
-     * @param ComponentInterface $component
-     * @return ComponentInterface
-     */
-    public function setParent(ComponentInterface $component) : ComponentInterface;
 
     /**
      * @param string $componentName
@@ -36,17 +30,16 @@ interface ComponentInterface
     public function getChild(string $componentName): ?ComponentInterface;
 
     /**
-     * @param string $componentName
      * @param ComponentInterface $component
      * @return ComponentInterface
      */
-    public function addChild(string $componentName, ComponentInterface $component) : ComponentInterface;
+    public function addChild(ComponentInterface $component) : ComponentInterface;
 
     /**
      * @param string $componentName
-     * @return void
+     * @return ComponentInterface
      */
-    public function removeChild(string $componentName): void;
+    public function removeChild(string $componentName): ComponentInterface;
 
     /**
      * @param string $path
@@ -66,9 +59,8 @@ interface ComponentInterface
      * @param string $sourcePath
      * @param string $destinationPath
      * @param string $childSeparator
-     * @return ComponentInterface
      */
-    public function moveNestedChild(string $sourcePath, string $destinationPath, string $childSeparator = '.') : ComponentInterface;
+    public function moveNestedChild(string $sourcePath, string $destinationPath, string $childSeparator = '.') : void;
 
     /**
      * @param string $path
@@ -92,19 +84,6 @@ interface ComponentInterface
      * @return mixed
      */
     public function isChildOf(ComponentInterface $component);
-
-    /**
-     * @param string $key
-     * @param $value
-     * @return ComponentInterface
-     */
-    public function setData(string $key, $value): ComponentInterface;
-
-    /**
-     * @param string $key
-     * @return mixed
-     */
-    public function getData(string $key);
 
     /**
      * @return string|null
@@ -186,35 +165,24 @@ interface ComponentInterface
     /**
      * @return array
      */
-    public function getValidation(): array;
+    public function getValidation(): ?array;
 
     /**
      * @param array $validation
      * @return ComponentInterface
      */
-    public function setValidation(array $validation): ComponentInterface;
+    public function setValidation(?array $validation): ComponentInterface;
 
     /**
-     * @return mixed
+     * @return array|null
      */
-    public function getValue();
-
-    /**
-     * @param $value
-     * @return ComponentInterface
-     */
-    public function setValue($value): ComponentInterface;
-
-    /**
-     * @return string|null
-     */
-    public function getFilterBy(): ?string;
+    public function getFilterBy(): ?array;
 
     /**
      * @param string $filterBy
      * @return ComponentInterface
      */
-    public function setFilterBy(string $filterBy): ComponentInterface;
+    public function setFilterBy(?array $filterBy = null): ComponentInterface;
 
     /**
      * @return bool

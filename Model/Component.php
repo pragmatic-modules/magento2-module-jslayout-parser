@@ -20,15 +20,17 @@ class Component implements ComponentInterface
     /** @var ComponentInterface|null */
     private $parent;
 
-    /** @var boolean */
-    private $isVirtual;
-
+    /**
+     * @param ComponentFactory $componentFactory
+     * @param string $componentName
+     * @param array $data
+     * @param ComponentInterface|null $parent
+     */
     public function __construct(
         ComponentFactory $componentFactory,
         string $componentName,
         array $data,
-        ?ComponentInterface $parent = null,
-        bool $isVirtual = false
+        ?ComponentInterface $parent = null
     ) {
         $this->componentFactory = $componentFactory;
         $this->data = $data;
@@ -48,7 +50,40 @@ class Component implements ComponentInterface
         }
     }
 
-    public function getName(): string
+    /**
+     * @param string $key
+     * @param $value
+     * @return ComponentInterface
+     */
+    protected function setData(string $key, $value): ComponentInterface
+    {
+        $this->data[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param string $key
+     * @param $default
+     * @return mixed|null
+     */
+    protected function getData(string $key, $default = null)
+    {
+        return $this->data[$key] ?? $default;
+    }
+
+    /**
+     * @param ComponentInterface $component
+     * @return ComponentInterface
+     */
+    protected function setParent(ComponentInterface $component): ComponentInterface
+    {
+        $this->parent = $component;
+
+        return $this;
+    }
+
+    public function getComponentName(): string
     {
         return $this->componentName;
     }
@@ -56,13 +91,6 @@ class Component implements ComponentInterface
     public function getParent(): ?ComponentInterface
     {
         return $this->parent;
-    }
-
-    public function setParent(ComponentInterface $component): ComponentInterface
-    {
-        $this->parent = $component;
-
-        return $this;
     }
 
     public function hasChild(string $componentName): bool
@@ -75,11 +103,16 @@ class Component implements ComponentInterface
         return $this->data['children'][$componentName] ?? null;
     }
 
-    public function addChild(string $componentName, ComponentInterface $component): ComponentInterface
+    public function addChild(ComponentInterface $component): ComponentInterface
     {
-        if($this->hasChild($componentName)) {
+        $componentName = $component->getComponentName();
+
+        if ($this->hasChild($componentName)) {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('%1 component already have %2 as a child', $componentName, $this->componentName)
+                __(
+                    '%1 component already have %2 as a child',
+                    $componentName,
+                    $this->getComponentName())
             );
         }
 
@@ -92,15 +125,17 @@ class Component implements ComponentInterface
         return $this;
     }
 
-    public function removeChild(string $componentName): void
+    public function removeChild(string $componentName): ComponentInterface
     {
         if (!$this->hasChild($componentName)) {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('%1 component does not exist in %2', $componentName, $this->componentName)
+                __('%1 component does not exist in %2', $componentName, $this->getComponentName())
             );
         }
 
         unset($this->data['children'][$componentName]);
+
+        return $this;
     }
 
     public function hasNestedChild(string $path, string $childSeparator = '.'): bool
@@ -109,7 +144,7 @@ class Component implements ComponentInterface
         $component = $this;
 
         foreach ($componentNames as $componentName) {
-            if(!$component->hasChild($componentName)) {
+            if (!$component->hasChild($componentName)) {
                 return false;
             }
             $component = $component->getChild($componentName);
@@ -118,14 +153,14 @@ class Component implements ComponentInterface
         return true;
     }
 
-    public function getNestedChild(string $path, string $childSeparator = '.') : ?ComponentInterface
+    public function getNestedChild(string $path, string $childSeparator = '.'): ?ComponentInterface
     {
         $componentNames = explode($childSeparator, $path);
         $component = $this;
 
         foreach ($componentNames as $componentName) {
             $component = $component->getChild($componentName);
-            if($component === null) {
+            if ($component === null) {
                 return null;
             }
         }
@@ -137,32 +172,30 @@ class Component implements ComponentInterface
         string $sourcePath,
         string $destinationPath,
         string $childSeparator = '.'
-    ): ComponentInterface {
+    ): void {
         $source = $this->getNestedChild($sourcePath);
         $destination = $this->getNestedChild($destinationPath);
 
-        if(!$source || !$destination) {
+        if (!$source || !$destination) {
             throw new \Magento\Framework\Exception\LocalizedException(
                 __('Moving child failed. source or destination does not exist ')
             );
         }
 
-        $source->getParent()->removeChild($source->getName());
-        $destination->addChild($source->getName(), $source);
-
-        return $this;
+        $source->getParent()->removeChild($source->getComponentName());
+        $destination->addChild($source);
     }
 
     public function removeNestedChild(string $path, string $childSeparator = '.'): ComponentInterface
     {
         $component = $this->getNestedChild($path);
-        if(!$component) {
+        if (!$component) {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('Moving child failed. source or destination does not exist ')
+                __('Moving child failed. source or destination does not exist')
             );
         }
 
-        $component->getParent()->removeChild($component->getName());
+        $component->getParent()->removeChild($component->getComponentName());
 
         return $this;
     }
@@ -177,21 +210,9 @@ class Component implements ComponentInterface
         return $this->data['children'] ?? [];
     }
 
-    public function isChildOf(ComponentInterface $component) : bool
+    public function isChildOf(ComponentInterface $component): bool
     {
         return $this->getParent() === $component;
-    }
-
-    public function setData(string $key, $value): ComponentInterface
-    {
-        $this->data[$key] = $value;
-
-        return $this;
-    }
-
-    public function getData(string $key, $default = null)
-    {
-        return $this->data[$key] ?? $default;
     }
 
     public function getComponent(): ?string
@@ -199,7 +220,7 @@ class Component implements ComponentInterface
         return $this->getData('component');
     }
 
-    public function setComponent(string $component) : ComponentInterface
+    public function setComponent(string $component): ComponentInterface
     {
         return $this->setData('component', $component);
     }
@@ -209,7 +230,7 @@ class Component implements ComponentInterface
         return $this->getData('config', []);
     }
 
-    public function setConfig(array $config) : ComponentInterface
+    public function setConfig(array $config): ComponentInterface
     {
         return $this->setData('config', $config);
     }
@@ -219,17 +240,17 @@ class Component implements ComponentInterface
         return $this->getData('dataScope');
     }
 
-    public function setDataScope(string $dataScope) : ComponentInterface
+    public function setDataScope(string $dataScope): ComponentInterface
     {
         return $this->setData('dataScope', $dataScope);
     }
 
-    public function getDisplayArea() : ?string
+    public function getDisplayArea(): ?string
     {
         return $this->getData('displayArea');
     }
 
-    public function setDisplayArea(string $displayArea) : ComponentInterface
+    public function setDisplayArea(string $displayArea): ComponentInterface
     {
         return $this->setData('displayArea', $displayArea);
     }
@@ -239,96 +260,82 @@ class Component implements ComponentInterface
         return $this->getData('label');
     }
 
-    public function setLabel($label) : ComponentInterface
+    public function setLabel($label): ComponentInterface
     {
         return $this->setData('label', $label);
     }
 
-    public function getProvider() : ?string
+    public function getProvider(): ?string
     {
         return $this->getData('provider');
     }
 
-    public function setProvider(string $provider) : ComponentInterface
+    public function setProvider(string $provider): ComponentInterface
     {
         return $this->setData('provider', $provider);
     }
 
-    public function getSortOrder() : ?string
+    public function getSortOrder(): ?string
     {
         return $this->getData('sortOrder');
     }
 
-    public function setSortOrder(string $sortOrder) : ComponentInterface
+    public function setSortOrder(string $sortOrder): ComponentInterface
     {
         return $this->setData('sortOrder', $sortOrder);
     }
 
-    public function getValidation(): array
+    public function getValidation(): ?array
     {
-        return $this->getData('validation', []);
+        return $this->getData('validation');
     }
 
-    public function setValidation(array $validation) : ComponentInterface
+    public function setValidation(?array $validation): ComponentInterface
     {
         return $this->setData('validation', $validation);
     }
 
-    public function getValue()
-    {
-        return $this->getData('value');
-    }
-
-    public function setValue($value) : ComponentInterface
-    {
-        return $this->setData('value', $value);
-    }
-
-    public function getFilterBy() : ?string
+    public function getFilterBy(): ?array
     {
         return $this->getData('filterBy');
     }
 
-    public function setFilterBy(string $filterBy) : ComponentInterface
+    public function setFilterBy(?array $filterBy = null): ComponentInterface
     {
         return $this->setData('filterBy', $filterBy);
     }
 
     public function isVisible(): bool
     {
-        return (bool) $this->getData('visible', true);
+        return (bool)$this->getData('visible', true);
     }
 
-    public function setIsVisible(bool $visible) : ComponentInterface
+    public function setIsVisible(bool $visible): ComponentInterface
     {
         return $this->setData('visible', $visible);
     }
 
     public function isRequired(): bool
     {
-        return (bool) $this->getData('required', false);
+        return (bool)$this->getData('required', false);
     }
 
-    public function setIsRequired(bool $required) : ComponentInterface
+    public function setIsRequired(bool $required): ComponentInterface
     {
         return $this->setData('required', $required);
     }
 
     public function asArray(): array
     {
-        if(!isset($this->data['children']) || empty($this->data['children'])) {
+        if (!isset($this->data['children']) || empty($this->data['children'])) {
             return $this->data;
         }
 
         $children = [];
 
         /** @var ComponentInterface $child */
-        foreach($this->data['children'] ?? [] as $componentName => $child) {
+        foreach ($this->data['children'] ?? [] as $componentName => $child) {
             $children[$componentName] = $child->asArray();
-        }
-
-        if($this->isVirtual) {
-            return $children;
         }
 
         return array_merge($this->data, ['children' => $children]);
