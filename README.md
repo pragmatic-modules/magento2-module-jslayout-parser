@@ -1,6 +1,7 @@
 # JS Layout Parser
 
-Lightweight Magento 2 module created to make working with `$jsLayout` in PHP less spaghetti, and more object-oriented.
+Lightweight Magento 2 module that was created to make work with `$jsLayout` in PHP less spaghetti, and more
+object-oriented.
 
 ## Installation
 
@@ -69,11 +70,76 @@ class ExampleProcessor implements LayoutProcessorInterface
 }
 ```
 
-## Component Methods
+## JsLayoutParser Methods
 
-### asArray ( )
+### parse( array $jsLayout, string $rootComponent )
+
+Parse `$jsLayout` into nested component objects tree.
+
+`$rootComponent` is name of the component out of `$jsLayout['components']` that will be used as a base path for any operations.
+
+Returns `ComponentInterface`.
+
+## ComponentInterface Methods
+
+* [asArray( )](#asarray-)
+* [getComponentName( )](#getcomponentname-)
+* [getParent( )](#getparent-)
+* [hasChild( string $componentName )](#haschild--string-componentname-)
+* [getChild( string $componentName )](#getchild-string-componentname-)
+* [addChild( ComponentInterface $component )](#addchild-componentinterface-component-)
+* [removeChild ( string $componentName )](#removechild--string-componentname-)
+* [hasNestedChild ( string $path, string $childSeparator = '.' )](#hasnestedchild--string-path-string-childseparator---)
+* [getNestedChild ( string $componentName, string $childSeparator = '.' )](#getnestedchild--string-componentname-string-childseparator---)
+* [moveNestedChild ( string $sourcePath, string $destinationPath, string $childSeparator = '.' )](#movenestedchild--string-sourcepath-string-destinationpath-string-childseparator---)
+* [hasChildren ( )](#haschildren--)
+* [getChildren ( )](#getchildren--)
+* [isChildOf ( ComponentInterface $component )](#ischildof--componentinterface-component-)
+* [getComponent ( )](#getcomponent--)
+* [setComponent ( string $component )](#setcomponent--string-component-)
+* [getConfig ( )](#getconfig--)
+* [setConfig ( array $config, bool $replace = false )](#setconfig--array-config-bool-replace--false-)
+* [getDataScope ( )](#getdatascope--)
+* [setDataScope ( string $dataScope )](#setdatascope--string-datascope-)
+* [getDisplayArea ( )](#getdisplayarea--)
+* [setDisplayArea ( string $displayArea )](#setdisplayarea--string-displayarea-)
+* [getLabel ( )](#getlabel--)
+* [setLabel ( $label )](#setlabel--label-)
+* [getProvider ( )](#getprovider--)
+* [setProvider ( string $provider )](#setprovider--string-provider-)
+* [getSortOrder ( )](#getsortorder--)
+* [setSortOrder ( string $sortOrder )](#setsortorder--string-sortorder-)
+* [getValidation ( )](#getvalidation--)
+* [setValidation ( array $validation )](#setvalidation--array-validation-)
+* [getFilterBy ( )](#getfilterby--)
+* [setFilterBy ( ?array $filterBy )](#setfilterby--array-filterby-)
+* [isVisible ( )](#isvisible--)
+* [setIsVisible ( bool $visible )](#setisvisible--bool-visible-)
+* [isRequired ( )](#isrequired--)
+* [setIsRequired ( bool $required )](#setisrequired--bool-required-)
+
+### asArray( )
+
+Recursively converts component object and all of its nested children into a plain array that can be returned through `$jsLayout`. 
+
 #### Example:
+
+```php
+$component = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if ($shippingAddress = $component->getNestedChild('steps.shipping-step.shippingAddress')) {
+    $shippingAddress->setComponent('Vendor_Module/js/view/shipping');
+    $shippingAddress->setIsVisible(false);
+}
+
+$jsLayout['components']['checkout'] = $component->asArray();
+```
+
 #### jsLayout equivalent:
+
+[scroll up️](#component-methods)
+
+---
 
 ### getComponentName( )
 
@@ -118,6 +184,10 @@ $checkout = [
 $checkout['componentName'] // returns 'checkout'
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### getParent( )
 
 Get parent component.
@@ -150,11 +220,15 @@ if(isset($checkout['steps'])) {
 }
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### hasChild ( string $componentName )
 
 Check if component has a child with a given name.
 
-Returns boolean.
+Returns bool.
 
 #### Example:
 
@@ -182,6 +256,10 @@ if(isset($jsLayout['component']['checkout']['children']['non-existing-child'])) 
 }
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### getChild( string $componentName )
 
 Get component child.
@@ -208,6 +286,10 @@ if(isset($jsLayout['components']['checkout']['children']['steps'])) {
     // do something with child
 }
 ```
+
+[scroll up️](#component-methods)
+
+---
 
 ### addChild( ComponentInterface $component )
 
@@ -249,6 +331,10 @@ if(!isset($jsLayout['components']['checkout']['children']['example'])) {
 }
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### removeChild ( string $componentName )
 
 Remove child from the component.
@@ -275,6 +361,10 @@ if(isset($jsLayout['components']['checkout']['children']['steps'])) {
 }
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### hasNestedChild ( string $path, string $childSeparator = '.' )
 
 Check if component has a nested child with a given path.
@@ -282,7 +372,7 @@ Check if component has a nested child with a given path.
 By default, children are separated by a dot. This behaviour can be adjusted by passing custom separator as a second
 argument.
 
-Returns boolean.
+Returns bool.
 
 #### Example:
 
@@ -305,6 +395,10 @@ if(isset($jsLayout['components']['checkout']['children']
     // do something
 }
 ```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getNestedChild ( string $componentName, string $childSeparator = '.' )
 
@@ -343,6 +437,10 @@ if(isset($jsLayout['components']['checkout']['children']
 }
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### moveNestedChild ( string $sourcePath, string $destinationPath, string $childSeparator = '.' )
 
 Move nested child from source to destination.
@@ -365,8 +463,8 @@ if($checkout->hasNestedChild('steps.shipping-step.shippingAddress') &&
     $checkout->moveNestedChild('steps.shipping-step.shippingAddress', 'steps');
 }
 
-$checkout->hasNestedChild('steps.shipping-step.shippingAddress') // false
-$checkout->hasNestedChild('steps.shippingAddress') // true
+$checkout->hasNestedChild('steps.shipping-step.shippingAddress'); // false
+$checkout->hasNestedChild('steps.shippingAddress'); // true
 ```
 
 #### jsLayout equivalent:
@@ -389,13 +487,17 @@ isset($jsLayout['components']['checkout']['children']
     ['steps']['children']
     ['shipping-step']['children']
     ['shippingAddress']
-) // false
+); // false
 
 isset($jsLayout['components']['checkout']['children']
     ['steps']['children']
     ['shippingAddress']
-) // true
+); // true
 ```
+
+[scroll up️](#component-methods)
+
+---
 
 ### hasChildren ( )
 
@@ -415,8 +517,12 @@ $checkout->hasChildren() // returns true
 
 ```php
 (isset($jsLayout['components']['checkout']['children']) && 
-count($jsLayout['components']['checkout']['children']) > 0) // returns true
+count($jsLayout['components']['checkout']['children']) > 0); // returns true
 ```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getChildren ( )
 
@@ -440,6 +546,10 @@ $checkout->getChildren(); // returns array with 'steps' component
 $jsLayout['components']['checkout']['children'] ?? [] // returns array with 'steps' component
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### isChildOf ( ComponentInterface $component )
 
 Check if component is child of given component.
@@ -450,13 +560,17 @@ Check if component is child of given component.
 $checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
 
 $steps = $checkout->getChild('steps');
-$steps->isChildOf($checkout) // returns true
+$steps->isChildOf($checkout); // returns true
 ```
 
 #### jsLayout equivalent:
 
 In associative `$jsLayout` array components are stored as nested key-value pairs, where value are arrays with nested
 children. It is not possible to determine parent within child scope.
+
+[scroll up️](#component-methods)
+
+---
 
 ### getComponent ( )
 
@@ -468,7 +582,7 @@ Get UI Component of given component object.
 $checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
 
 if($shippingAddress = $checkout->getNestedChild('steps.shipping-step.shippingAddress')) {
-    $shippingAddress->getComponent() // returns 'Magento_Checkout/js/view/shipping'
+    $component = $shippingAddress->getComponent(); // returns 'Magento_Checkout/js/view/shipping'
 }
 ```
 
@@ -484,9 +598,13 @@ if(isset($jsLayout['components']['checkout']['children']
         ['steps']['children']
         ['shipping-step']['children']
         ['shippingAddress'];
-    $shippingAddress['component'] // 'Magento_Checkout/js/view/shipping'
+    $component = $shippingAddress['component'] // 'Magento_Checkout/js/view/shipping'
 }
 ```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setComponent ( string $component )
 
@@ -518,82 +636,815 @@ if(isset($jsLayout['components']['checkout']['children']
 }
 ```
 
+[scroll up️](#component-methods)
+
+---
+
 ### getConfig ( )
+
+Get component configuration.
+
+Returns array.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($regionId = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.region_id')) {
+    $config = $regionId->getConfig();
+    /** $config is an array:
+        [
+            'customScope' => 'shippingAddress',
+            'template' => 'ui/form/field',
+            'elementTmpl' => 'ui/form/element/select',
+            'customEntry' => 'shippingAddress.region',
+        ]
+    */
+}
+```
+
 #### jsLayout equivalent:
 
-### setConfig ( array $config )
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']
+)) {
+    $regionId = &$jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id'];
+
+    $config = $regionId['config'];
+}
+```
+
+[scroll up️](#component-methods)
+
+---
+
+### setConfig ( array $config, bool $replace = false )
+
+Set component configuration.
+
+Configurations are merged together by default. Previous values remain intact except the ones that have the same keys as `$config` array. 
+
+`$config` values have higher priority and can be used to replace parts of existing configuration.
+
+Entire component configuration can be overwritten by `$config` by using `$replace = true`. 
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($regionId = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.region_id')) {
+    $config = $shippingAddress->setConfig([
+        'template' => 'Vendor_Module/form/field'
+    ]);
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']
+)) {
+    $regionId = &$jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id'];
+
+    $regionId['config']['template'] = 'Vendor_Module/form/field';
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getDataScope ( )
+
+Get component data scope.
+
+Returns string or null.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($regionId = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.region_id')) {
+    $dataScope = $regionId->getDataScope(); // returns 'shippingAddress.region_id'
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']
+)) {
+    $dataScope = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']['dataScope'] ?? null; // 'shippingAddress.region_id'
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setDataScope ( string $dataScope )
+
+Set component data scope.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($regionId = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.region_id')) {
+    $regionId->setDataScope('shippingAddress.some_region');
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']['dataScope'] = 'shippingAddress.some_region';
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getDisplayArea ( )
+
+Get component display area.
+
+Returns string or null.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($shippingFieldset = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset')) {
+    $displayArea = $shippingFieldset->getDisplayArea(); // returns 'additional-fieldsets'
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']
+)) {
+    $displayArea = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['displayArea'] ?? null; // 'additional-fieldsets'
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setDisplayArea ( string $displayArea )
+
+Set component display area.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($shippingFieldset = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset')) {
+    $shippingFieldset->setDisplayArea('summary');
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['displayArea'] = 'summary';
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getLabel ( )
+
+Get component label.
+
+Returns string, `Magento\Framework\Phrase`, or null.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $label = $postcode->getLabel(); // returns 'Zip/Postal Code'
+}
+```
+
 #### jsLayout equivalent:
 
-### setLabel ( string $label )
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $label = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['label'] ?? null;  // 'Zip/Postal Code'
+}
+```
+
+[scroll up️](#component-methods)
+
+---
+
+### setLabel ( $label )
+
+Set component label.
+
+`$label` should be either string, `Magento\Framework\Phrase`, or null.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $label = $postcode->setLabel(__('ZIP'));
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['label'] = __('ZIP');
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getProvider ( )
+
+Get component provider.
+
+Returns string or null.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $provider = $postcode->getProvider(); // returns 'checkoutProvider'
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $provider = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['provider'] ?? null; // 'checkoutProvider'
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setProvider ( string $provider )
+
+Set component provider.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $postcode->setProvider('vendorProvider');
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['provider'] = 'vendorProvider';
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getSortOrder ( )
+
+Get component sort order.
+
+Returns string, or null.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $sortOrder = $postcode->getSortOrder(); // returns '110'
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $sortOrder = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['sortOrder'] ?? null; // '110'
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setSortOrder ( string $sortOrder )
+
+Set component sort order.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $postcode->setSortOrder('150');
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['sortOrder'] = '150';
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getValidation ( )
+
+Get component validation rules.
+
+Returns array or null.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $validation = $postcode->getValidation(); // returns ['required-entry' => true]
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $validation = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['validation'] ?? null;  // ['required-entry' => true]
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setValidation ( array $validation )
+
+Set component validation rules.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $postcode->setValidation([
+        'required-entry' => true,
+        'max_text_length' => 6
+    ]);
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $validation = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['validation'] = [
+        'required-entry' => true,
+        'max_text_length' => 6
+    ];
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### getFilterBy ( )
+
+Get component filter by configuration.
+
+Returns array or null.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($regionId = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.region_id')) {
+    $filterBy = $regionId->getFilterBy(); 
+// returns 
+//    [
+//        'target' => '${ $.provider }:${ $.parentScope }.country_id',
+//        'field' => 'country_id',
+//    ]
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']
+)) {
+    $filterBy = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']['filterBy'] ?? null;
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setFilterBy ( ?array $filterBy )
+
+Set component filter by configuration.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($regionId = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.region_id')) {
+    $regionId->setFilterBy(null); 
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['region_id']['filterBy'] = null;
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### isVisible ( )
+
+Get component visibility.
+
+Returns bool.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $isVisible = $postcode->isVisible(); // returns true
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $isVisible = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['visible'] ?? false; // true
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### setIsVisible ( bool $visible )
+
+Set component visibility.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($postcode = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.postcode')) {
+    $postcode->setIsVisible(false);
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['postcode']['visible'] = false;
+}
+```
+
+[scroll up️](#component-methods)
+
+---
 
 ### isRequired ( )
+
+Get component `required` flag.
+
+Returns bool.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($street = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.street')) {
+    $isRequired = $street->isRequired(); // returns true
+}
+```
+
 #### jsLayout equivalent:
 
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['street']
+)) {
+    $isRequired = $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['street']['required'] ?? false; // true
+}
+```
+
+[scroll up️](#component-methods)
+
+---
+
 ### setIsRequired ( bool $required )
+
+Set component `required` flag.
+
+Returns self.
+
 #### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($street = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.street')) {
+    $street->setIsRequired(false);
+}
+```
+
 #### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['street']
+)) {
+    $jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']['children']
+    ['shipping-address-fieldset']['children']
+    ['street']['required'] = false;
+}
+```
+
+[scroll up️](#component-methods)
+
+---
