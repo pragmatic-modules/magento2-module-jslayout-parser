@@ -1,7 +1,6 @@
 # JS Layout Parser
 
-Lightweight Magento 2 module that was created to make work with `$jsLayout` in PHP less spaghetti, and more
-object-oriented.
+Lightweight Magento 2 module that was created to make work with `$jsLayout` less spaghetti, and more object-oriented.
 
 ## Installation
 
