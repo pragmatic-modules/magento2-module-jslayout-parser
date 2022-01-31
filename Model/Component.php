@@ -230,9 +230,12 @@ class Component implements ComponentInterface
         return $this->getData('config', []);
     }
 
-    public function setConfig(array $config): ComponentInterface
+    public function setConfig(array $config, bool $replace = false): ComponentInterface
     {
-        return $this->setData('config', $config);
+        return $this->setData(
+            'config',
+            $replace ? $config : array_merge($this->getConfig(), $config)
+        );
     }
 
     public function getDataScope(): ?string
@@ -307,7 +310,7 @@ class Component implements ComponentInterface
 
     public function isVisible(): bool
     {
-        return (bool)$this->getData('visible', true);
+        return (bool)$this->getData('visible', false);
     }
 
     public function setIsVisible(bool $visible): ComponentInterface

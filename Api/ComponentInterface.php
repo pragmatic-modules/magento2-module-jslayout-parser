@@ -105,7 +105,7 @@ interface ComponentInterface
      * @param array $config
      * @return ComponentInterface
      */
-    public function setConfig(array $config): ComponentInterface;
+    public function setConfig(array $config, bool $replace = false): ComponentInterface;
 
     /**
      * @return string|null
