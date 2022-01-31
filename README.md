@@ -32,6 +32,10 @@ File: `etc/frontend/di.xml`
 
 ```
 
+Inject `Pragmatic\JsLayoutParser\Model\JsLayoutParser` into processor and parse `$jsLayout` for selected root component. 
+
+You can find a list of available component methods below.
+
 ```php
 <?php
 declare(strict_types=1);
@@ -69,6 +73,7 @@ class ExampleProcessor implements LayoutProcessorInterface
 }
 ```
 
+
 ## JsLayoutParser Methods
 
 ### parse( array $jsLayout, string $rootComponent )
@@ -77,9 +82,11 @@ Parse `$jsLayout` into nested component objects tree.
 
 `$rootComponent` is name of the component out of `$jsLayout['components']` that will be used as a base path for any operations.
 
-Returns `ComponentInterface`.
+Returns root `Component` object.
 
-## ComponentInterface Methods
+---
+
+## Component Methods
 
 * [asArray( )](#asarray-)
 * [getComponentName( )](#getcomponentname-)
@@ -134,8 +141,6 @@ if ($shippingAddress = $component->getNestedChild('steps.shipping-step.shippingA
 $jsLayout['components']['checkout'] = $component->asArray();
 ```
 
-#### jsLayout equivalent:
-
 [scroll up️](#component-methods)
 
 ---
@@ -150,7 +155,7 @@ Returns string.
 
 ```php
 $checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
-$checkout->getComponentName(); // returns 'checkout'
+$componentName = $checkout->getComponentName(); // returns 'checkout'
 ```
 
 #### jsLayout equivalent:
@@ -180,7 +185,7 @@ $checkout = [
     'componentName' => 'checkout', 
     'data' => $jsLayout['components']['checkout']
 ];
-$checkout['componentName'] // returns 'checkout'
+$componentName = $checkout['componentName'] // 'checkout'
 ```
 
 [scroll up️](#component-methods)
