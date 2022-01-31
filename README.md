@@ -4,7 +4,7 @@ Lightweight Magento 2 module that was created to make work with `$jsLayout` less
 
 ## Installation
 
-`composer require pragmatic-modules/js-layout-parser`
+`composer require pragmatic-modules/magento2-module-jslayout-parser`
 
 `bin/magento module:enable Pragmatic_JsLayoutParser`
 

@@ -1,10 +1,9 @@
 {
-    "name": "pragmatic-modules/js-layout-parser",
+    "name": "pragmatic-modules/magento2-module-jslayout-parser",
     "description": "Lightweight Magento 2 module that was created to make work with `$jsLayout` less spaghetti, and more object-oriented.",
     "type": "magento2-module",
     "license": [
-        "OSL-3.0",
-        "AFL-3.0"
+        "MIT"
     ],
     "require": {
         "magento/product-community-edition": "*"
