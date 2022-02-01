@@ -93,6 +93,13 @@ class Component implements ComponentInterface
         return $this->parent;
     }
 
+    public function remove(): void
+    {
+        if($parent = $this->getParent()) {
+            $parent->removeChild($this->getComponentName());
+        }
+    }
+
     public function hasChild(string $componentName): bool
     {
         return isset($this->data['children'][$componentName]);
@@ -186,18 +193,16 @@ class Component implements ComponentInterface
         $destination->addChild($source);
     }
 
-    public function removeNestedChild(string $path, string $childSeparator = '.'): ComponentInterface
+    public function removeNestedChild(string $path, string $childSeparator = '.'): void
     {
         $component = $this->getNestedChild($path);
         if (!$component) {
             throw new \Magento\Framework\Exception\LocalizedException(
-                __('Moving child failed. source or destination does not exist')
+                __('Removing nested child failed. Child does not exist.')
             );
         }
 
         $component->getParent()->removeChild($component->getComponentName());
-
-        return $this;
     }
 
     public function hasChildren(): bool

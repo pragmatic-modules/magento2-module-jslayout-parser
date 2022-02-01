@@ -8,40 +8,64 @@ use Magento\Framework\Exception\LocalizedException;
 interface ComponentInterface
 {
     /**
+     * Get component name in layout.
+     *
      * @return string
      */
-    public function getComponentName() : string;
+    public function getComponentName(): string;
 
     /**
+     * Get parent component.
+     *
      * @return ComponentInterface|null
      */
-    public function getParent() : ?ComponentInterface;
+    public function getParent(): ?ComponentInterface;
 
     /**
+     * Remove component with all descendants from the component tree.
+     */
+    public function remove(): void;
+
+    /**
+     * Check if component has a child with a given name.
+     *
      * @param string $componentName
      * @return bool
      */
     public function hasChild(string $componentName): bool;
 
     /**
+     * Get component child.
+     *
      * @param string $componentName
      * @return ComponentInterface|null
      */
     public function getChild(string $componentName): ?ComponentInterface;
 
     /**
+     * Add new component as a child of the current component object.
+     *
      * @param ComponentInterface $component
      * @return ComponentInterface
+     * @throws LocalizedException
      */
-    public function addChild(ComponentInterface $component) : ComponentInterface;
+    public function addChild(ComponentInterface $component): ComponentInterface;
 
     /**
+     * Remove child from the component.
+     *
      * @param string $componentName
      * @return ComponentInterface
+     * @throws LocalizedException
      */
     public function removeChild(string $componentName): ComponentInterface;
 
     /**
+     * Check if component has a nested child with a given path.
+     *
+     * By default, children are separated by a dot.
+     * This behaviour can be adjusted by passing custom separator as a second argument.
+     *
      * @param string $path
      * @param string $childSeparator
      * @return bool
@@ -49,25 +73,36 @@ interface ComponentInterface
     public function hasNestedChild(string $path, string $childSeparator = '.'): bool;
 
     /**
+     * Get component nested child.
+     *
+     * By default, children are separated by a dot.
+     * This behaviour can be adjusted by passing custom separator as a second argument.
+     *
      * @param string $path
      * @param string $childSeparator
      * @return ComponentInterface|null
      */
-    public function getNestedChild(string $path, string $childSeparator = '.') : ?ComponentInterface;
+    public function getNestedChild(string $path, string $childSeparator = '.'): ?ComponentInterface;
 
     /**
+     * Move nested child from source to destination.
+     *
+     * By default, children are separated by a dot.
+     * This behaviour can be adjusted by passing custom separator as a third argument.
+     *
      * @param string $sourcePath
      * @param string $destinationPath
      * @param string $childSeparator
+     * @throws LocalizedException
      */
-    public function moveNestedChild(string $sourcePath, string $destinationPath, string $childSeparator = '.') : void;
+    public function moveNestedChild(string $sourcePath, string $destinationPath, string $childSeparator = '.'): void;
 
     /**
      * @param string $path
      * @param string $childSeparator
-     * @return ComponentInterface
+     * @throws LocalizedException
      */
-    public function removeNestedChild(string $path, string $childSeparator = '.') : ComponentInterface;
+    public function removeNestedChild(string $path, string $childSeparator = '.'): void;
 
     /**
      * @return bool
@@ -179,7 +214,7 @@ interface ComponentInterface
     public function getFilterBy(): ?array;
 
     /**
-     * @param string $filterBy
+     * @param array|null $filterBy
      * @return ComponentInterface
      */
     public function setFilterBy(?array $filterBy = null): ComponentInterface;
@@ -207,6 +242,9 @@ interface ComponentInterface
     public function setIsRequired(bool $required): ComponentInterface;
 
     /**
+     * Recursively converts component object and all of its nested children
+     * into a plain array that can be returned through jsLayout
+     *
      * @return array
      */
     public function asArray(): array;

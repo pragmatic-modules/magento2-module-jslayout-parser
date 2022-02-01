@@ -228,6 +228,34 @@ if(isset($checkout['steps'])) {
 
 ---
 
+### remove( )
+
+Remove component with all descendants from the component tree.
+
+This method has no return value.
+
+#### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($steps = $checkout->getChild('steps')) {
+    $steps->remove();
+}
+```
+
+#### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['steps'])) {
+    unset($jsLayout['components']['checkout']['steps']);
+}
+```
+
+[scroll up️](#component-methods)
+
+---
+
 ### hasChild ( string $componentName )
 
 Check if component has a child with a given name.
@@ -497,6 +525,50 @@ isset($jsLayout['components']['checkout']['children']
     ['steps']['children']
     ['shippingAddress']
 ); // true
+```
+
+[scroll up️](#component-methods)
+
+---
+
+### removeNestedChild ( string $path, string string $childSeparator = '.' )
+
+Remove nested child by path.
+
+By default, children are separated by a dot. This behaviour can be adjusted by passing custom separator as a third
+argument.
+
+This method throws `LocalizedException` if source or destination does not exist.
+
+This method has no return value.
+
+#### Example:
+
+```php
+$checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
+
+if($checkout->hasNestedChild('steps.shipping-step.shippingAddress')) {
+    $checkout->removeNestedChild('steps.shipping-step.shippingAddress');
+}
+$checkout->hasNestedChild('steps.shipping-step.shippingAddress'); // false
+```
+
+#### jsLayout equivalent:
+
+```php
+if(isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']
+)) {
+    unset($steps['shipping-step']['children']['shippingAddress']);
+}
+
+isset($jsLayout['components']['checkout']['children']
+    ['steps']['children']
+    ['shipping-step']['children']
+    ['shippingAddress']
+); // false
 ```
 
 [scroll up️](#component-methods)
