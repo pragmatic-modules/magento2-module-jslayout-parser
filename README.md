@@ -91,6 +91,7 @@ Returns root `Component` object.
 * [asArray( )](#asarray-)
 * [getComponentName( )](#getcomponentname-)
 * [getParent( )](#getparent-)
+* [remove( )](#remove-)
 * [hasChild( string $componentName )](#haschild--string-componentname-)
 * [getChild( string $componentName )](#getchild-string-componentname-)
 * [addChild( ComponentInterface $component )](#addchild-componentinterface-component-)
