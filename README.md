@@ -99,6 +99,7 @@ Returns root `Component` object.
 * [hasNestedChild ( string $path, string $childSeparator = '.' )](#hasnestedchild--string-path-string-childseparator---)
 * [getNestedChild ( string $componentName, string $childSeparator = '.' )](#getnestedchild--string-componentname-string-childseparator---)
 * [moveNestedChild ( string $sourcePath, string $destinationPath, string $childSeparator = '.' )](#movenestedchild--string-sourcepath-string-destinationpath-string-childseparator---)
+* [removeNestedChild ( string $path, string string $childSeparator = '.' )](#removenestedchild--string-path-string-string-childseparator---)
 * [hasChildren ( )](#haschildren--)
 * [getChildren ( )](#getchildren--)
 * [isChildOf ( ComponentInterface $component )](#ischildof--componentinterface-component-)
