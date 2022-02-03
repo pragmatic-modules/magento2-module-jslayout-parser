@@ -2,6 +2,15 @@
 
 Lightweight Magento 2 module that was created to make work with `$jsLayout` less spaghetti, and more object-oriented.
 
+
+## Alternative Version
+
+After Michal's reasonable advice I moved whole code out of this module into standalone PHP library that can be found at [pragmatic-modules/jslayout-parser](https://github.com/pragmatic-modules/jslayout-parser)
+
+This lets you avoid unnecessary entry in the `app/etc/config.php`
+
+Nothing else changes compared to this module, so the choice is yours.
+
 ## Installation
 
 ```
