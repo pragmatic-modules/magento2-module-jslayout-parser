@@ -794,7 +794,7 @@ Returns self.
 $checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
 
 if($regionId = $checkout->getNestedChild('steps.shipping-step.shippingAddress.shipping-address-fieldset.region_id')) {
-    $config = $shippingAddress->setConfig([
+    $config = $regionId->setConfig([
         'template' => 'Vendor_Module/form/field'
     ]);
 }
