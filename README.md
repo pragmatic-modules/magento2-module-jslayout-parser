@@ -9,7 +9,7 @@ After Michal's reasonable advice I moved whole code out of this module into stan
 
 This lets you avoid unnecessary entry in the `app/etc/config.php`
 
-Nothing else changes compared to this module, so the choice is yours.
+Besides that, whole API remains the same.
 
 ## Installation
 
