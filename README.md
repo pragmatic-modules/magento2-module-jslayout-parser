@@ -347,7 +347,7 @@ Returns self on success.
 ```php
 $checkout = $this->jsLayoutParser->parse($jsLayout, 'checkout');
 
-/** @var \Pragmatic\JsLayoutParser\Api\ComponentInterfaceFactory */
+/** @var \Pragmatic\JsLayoutParser\Model\ComponentFactory */
 $child = $this->componentFactory->create([
     'componentName' => 'example',
     'data' => [
